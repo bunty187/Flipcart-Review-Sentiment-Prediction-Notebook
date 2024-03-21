@@ -51,11 +51,16 @@ def preprocess_text(text):
 def classify_sentiment(text):
     # Preprocess the text
     text = preprocess_text(text)
-    # Create document vector using GloVe embeddings
-    text_embedding = document_vector(text, wv)
-    # Predict sentiment
-    prediction = model.predict([text_embedding])
+    
+    # Instantiate GloVeVectorizer
+    glove_vectorizer = GloVeVectorizer(model=wv)
 
+    # Transform text into document vector using GloVe embeddings
+    text_embedding = glove_vectorizer.transform([text])
+
+    # Predict sentiment
+    prediction = model.predict(text_embedding)
+    
     # Map predictions to sentiment labels
     if prediction[0] <= 2:
         return "Negative"
@@ -75,7 +80,7 @@ def prediction():
     if request.method == 'POST':
         review = request.form.get("test_string")
         sentiment = classify_sentiment(review)
-        return render_template("results.html", review=review, prediction=sentiment)
+        return render_template("result.html", review=review, prediction=sentiment)
     return render_template("index.html")  # Render the form if the method is GET
 
 if __name__ == "__main__":
